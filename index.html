@@ -65,23 +65,21 @@
           x-transition:leave="transition ease-in duration-75"
           x-transition:leave-start="transform opacity-100 scale-100"
           x-transition:leave-end="transform opacity-0 scale-95"
+          x-cloak
         >
-          <div class="py-1" role="none" x-cloak>
             <!-- Active: "'bg-gray-100 text-gray-900'", Not Active: "text-gray-700" -->
             <template x-for="(d, i) in data">
               <a
               :href="d.link"
               class="text-gray-700 block px-4 py-2 text-sm"
-              :class="isActive(i)"
               x-bind:="dropdown_item"
               role="menuitem"
               tabindex="-1"
-              :data-index="i"
               x-text="d.label"
               ></a>
             </template>
           </div>
-        </div>
+    
       </div>
     </div>
   </body>

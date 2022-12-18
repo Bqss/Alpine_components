@@ -1,10 +1,19 @@
-const Dropdown = ({ open = false, data = [], hoverStyle="" }) => ({
+const Dropdown = ({ open = false, hoverStyle="", ...other }) => ({
   open,
-  data,
+  items : null,
+  ...other,
   selected : null,
   activeIndex: -1,
   init(){
-
+    this.$nextTick(() => {
+        this.items = this.$el.querySelectorAll('[role="menuitem"]');
+    });
+    this.$watch("activeIndex",(v) => {
+        this.selected = this.activeIndex != -1 ? this.items[v] : null
+    })
+    this.$watch("open",(v) => {
+        v && (this.activeIndex = -1)
+    })
   },
   isActive(index){
     return this.activeIndex == index ? hoverStyle : ''
@@ -13,29 +22,34 @@ const Dropdown = ({ open = false, data = [], hoverStyle="" }) => ({
     this.open = false;
     this.$refs.dropdown_control.focus();
   },
+  select(){
+    if(this.selected){
+        this.selected.click();
+        this.hide();
+    }
+    return;
+  },
   ["dropdown_panel"]:{
     [":aria-active"] : "activeIndex",
+    ["init"] : "init()",
     ["@keyup.escape.stop.prevent"] () {
         this.hide();
     },
     ["@keyup.space.stop.prevent"] () {
-        this.selected.click();
-        this.hide();
+        this.select()
     },
     ["@keyup.tab.stop.prevent"] () {
-        this.selected.click();
-        this.hide();
+        this.select()
     },
     ["@keyup.enter.stop.prevent"] () {
-        this.selected.click()
-        this.hide();
+        this.select()
     },
-    ["@keyup.up.prevent"]() {
-        this.activeIndex >= 0 ? this.activeIndex -- : this.activeIndex= 6;
+    ["@keydown.up.prevent"]() {
+        this.activeIndex > 0? this.activeIndex-- : (this.activeIndex = this.items.length-1);
     }
     ,
-    ["@keyup.down.prevent"]() {
-        this.activeIndex <= 5 ? this.activeIndex++ : this.activeIndex = 0;
+    ["@keydown.down.prevent"]() {
+        this.activeIndex < this.items.length-1 ? this.activeIndex++ : this.activeIndex = 0;
     },
     
   },
@@ -58,13 +72,15 @@ const Dropdown = ({ open = false, data = [], hoverStyle="" }) => ({
     }
   },
   ["dropdown_item"]: {
-    ["@mouseenter"]({ target }) {
+    [":data-index"]: "i",
+    ["@mouseenter"]({target}) {
       this.activeIndex = target.dataset.index;
-      this.selected = target;
     },
+    [":class"] : "isActive(i)",
     ["@click"]() {
       this.hide();
     },
+    [":aria-selected"]: "activeIndex === i",
     ["@mouseleave"]() {
       this.activeIndex = -1;
     },
