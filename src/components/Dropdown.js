@@ -29,10 +29,10 @@ const Dropdown = ({ open = false, hoverStyle="", ...other }) => ({
     }
     return;
   },
-  ["dropdown_panel"]:{
+  ["dropdown_container"]:{
     [":aria-active"] : "activeIndex",
     ["init"] : "init()",
-    ["@keyup.escape.stop.prevent"] () {
+    ["@keydown.escape.stop.prevent"] () {
         this.hide();
     },
     ["@keyup.space.stop.prevent"] () {
@@ -64,7 +64,7 @@ const Dropdown = ({ open = false, hoverStyle="", ...other }) => ({
     ["x-ref"]: "dropdown_control",
    
   },
-  ["dropdown_dialog"]: {
+  ["dropdown_panel"]: {
     ["x-show"]: "open",
     ["x-ref"] : "dropdown_dialog",
     ["@click.away"]() {

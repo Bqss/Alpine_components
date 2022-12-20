@@ -11,9 +11,9 @@
   <body>
     <!-- dropdown menu -->
     <div class="pt-10 pl-48">
-      <div 
-      class="relative inline-block text-left" 
-      x-data="dropdown({
+      <div
+        class="relative inline-block text-left"
+        x-data="dropdown({
         data : [
           {label : 'Edit', link : '/edit'},
           {label : 'Duplicate', link : '/duplicate'},
@@ -24,8 +24,9 @@
           {label : 'Delete', link : '/delete'},
         ],
         hoverStyle : 'text-gray-700 bg-blue-300'
-      })" 
-      x-bind:="dropdown_panel">
+      })"
+        x-bind:="dropdown_container"
+      >
         <div>
           <button
             x-bind:="dropdown_control"
@@ -58,7 +59,7 @@
           aria-orientation="vertical"
           aria-labelledby="menu-button"
           tabindex="-1"
-          x-bind:="dropdown_dialog"
+          x-bind:="dropdown_panel"
           x-transition:enter="transition ease-out duration-100"
           x-transition:enter-start="transform opacity-0 scale-95"
           x-transition:enter-end="transform opacity-100 scale-100"
@@ -67,19 +68,121 @@
           x-transition:leave-end="transform opacity-0 scale-95"
           x-cloak
         >
-            <!-- Active: "'bg-gray-100 text-gray-900'", Not Active: "text-gray-700" -->
-            <template x-for="(d, i) in data">
-              <a
+          <!-- Active: "'bg-gray-100 text-gray-900'", Not Active: "text-gray-700" -->
+          <template x-for="(d, i) in data">
+            <a
               :href="d.link"
               class="text-gray-700 block px-4 py-2 text-sm"
               x-bind:="dropdown_item"
               role="menuitem"
-              tabindex="-1"
               x-text="d.label"
-              ></a>
+            ></a>
+          </template>
+        </div>
+      </div>
+      <!-- dialog modal -->
+      <div class="mt-20 py-10" x-data="dialog">
+        <a
+          x-bind:="dialog_control"
+          href="./delete"
+          class="py-2 px-4 rounded-md bg-indigo-500 outline-none text-white border-2 border-trasnparent focus:border-black transition-all duration-150"
+        >
+          delete
+        </a>
+        <div
+          class="flex fixed w-screen h-screen top-0 left-0 items-center justify-center z-[2]"
+          x-show="open"
+          x-cloak
+        >
+          <div
+            class="bg-gray-600 flex fixed flex-col text-white p-6 rounded-md w-max"
+            x-bind:="dialog_panel"
+            x-cloak
+            tabindex="-1"
+            x-transition
+          >
+            <h2 class="text-xl font-medium">
+              Are you sure to delete the book ?
+            </h2>
+            <p class="mt-2">
+              The books will be delete, and you cant access it again
+            </p>
+            <div class="ml-auto flex mt-10 gap-2">
+              <button
+                class="py-2 px-4 rounded-md outline-none bg-red-500 border-2 border-transparent focus:border-black"
+                x-bind:="button_cancel"
+              >
+                Cancel
+              </button>
+              <a
+                class="py-2 px-4 rounded-md outline-none bg-indigo-500 border-2 border-transparent focus:border-black"
+                href="./delete"
+                >Delete</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <template x-teleport="body">
+          <div
+            class="backdrop-brightness-50 fixed w-screen h-screen top-0 z-[1]"
+            x-show="open"
+            x-cloak
+          ></div>
+        </template>
+      </div>
+
+      <!-- tabs -->
+      <div class="mt-10">
+        <div
+          x-data="tabs({
+          data : ['My account','Company','Team members','billing']
+        })"
+          x-init="init"
+          :aria-active="activeIndex"
+        >
+          <div
+            class="flex border-b relative border-gray-300 w-max"
+            x-bind:="tabs_navigation"
+          >
+            <template x-for="(tab, i) in data">
+              <button
+                x-text="tab"
+                class="py-2 px-4 hover:text-black border-b-[2px] border-transparent hover:border-gray-200"
+                x-bind:="nav"
+              ></button>
+            </template>
+            <span
+              class="absolute bottom-0 h-[3px] rounded-md transition-all duration-300 bg-indigo-500"
+              x-bind:="navigator"
+            ></span>
+          </div>
+          <div>
+            <!-- 
+
+              transition 
+
+                x-transition:enter="transition-all duration-500"
+                x-transition:enter-start="translate-x-full  opacity-0"
+                x-transition:enter-end="translate-x-0  opacity-100"
+                x-transition:leave="transition-all duration-300"
+                x-transition:leave-start="-translate-x-0 opacity-100 "
+                x-transition:leave-end="-translate-x-full opacity-0"
+             -->
+            <template x-for="(d,i) in data">
+              <div
+                x-text="d"
+                x-bind:="tab"
+                class="p-6 shadow-xl rounded-md h-[60vh] mt-4 "
+                x-transition:enter="duration-200 transition"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="duration-200"
+                x-transition:leave-end="opacity-0"
+              ></div>
             </template>
           </div>
-    
+        </div>
       </div>
     </div>
   </body>
