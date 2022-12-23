@@ -38,14 +38,6 @@ const Carousel = ({
     });
 
     this.$watch("xOffset", (v) => {
-      if (!dragable) {
-        this.slider.style.transform = `translateX(${v}px)`;
-        this.slider.style.transition = `all ${300}ms`;
-        setTimeout(() => {
-          this.slider.style.transition = "";
-        }, 300);
-        return;
-      }
       this.slider.style.transform = `translateX(${v}px)`;
     });
 
@@ -56,6 +48,34 @@ const Carousel = ({
     if (this.autoplay) {
       this.play();
     }
+  },
+  next(){
+    if (!this.infinite && this.active === this.total - 2 - this.skip) return;
+    if (this.infinite && this.active === this.total - 2 - this.skip) {
+      this.xOffset = 0 * -this.width;
+      this.active = 0;
+      return;
+    }
+    this.xOffset = (this.active + 1 + this.skip) * -this.width;
+    this.active = this.active + 1 + this.skip;
+    this.slider.style.transition = `all ${300}ms`;
+    setTimeout(() => {
+      this.slider.style.transition = "";
+    }, 300);
+  },
+  prev(){
+    if (!this.infinite && this.active === 0) return;
+    if (this.infinite && this.active === 0) {
+      this.xOffset = (this.total - 1 - this.skip) * -this.width;
+      this.active = this.total - 1 - this.skip;
+      return;
+    }
+    this.xOffset = (this.active - 1 - this.skip) * -this.width;
+    this.active = this.active - 1 - this.skip;
+    this.slider.style.transition = `all ${300}ms`;
+    setTimeout(() => {
+      this.slider.style.transition = "";
+    }, 300);
   },
   to(active, delay = 300) {
     const x = -this.width * active;
@@ -69,28 +89,14 @@ const Carousel = ({
   [":aria-selected"]: "active",
   ["next_btn"]: {
     ["@click.stop.throttle.100"]() {
-      if (!this.infinite && this.active === this.total - 2 - this.skip) return;
-      if (this.infinite && this.active === this.total - 2 - this.skip) {
-        this.xOffset = 0 * -this.width;
-        this.active = 0;
-        return;
-      }
-      this.xOffset = (this.active + 1 + this.skip) * -this.width;
-      this.active = this.active + 1 + this.skip;
+      this.next();
     },
     ["x-show"]: "! ( !infinite && active === (total -2 -skip))",
     [":aria-hidden"]: "! ( !infinite && active === (total -2 -skip))",
   },
   ["prev_btn"]: {
     ["@click.stop.throttle.100"]() {
-      if (!this.infinite && this.active === 0) return;
-      if (this.infinite && this.active === 0) {
-        this.xOffset = (this.total - 1 - this.skip) * -this.width;
-        this.active = this.total - 1 - this.skip;
-        return;
-      }
-      this.xOffset = (this.active - 1 - this.skip) * -this.width;
-      this.active = this.active - 1 - this.skip;
+      this.prev();
     },
     ["x-show"]: "! (!infinite && active === 0)",
     [":aria-hidden"]: "! (!infinite && active === 0)",
@@ -137,22 +143,19 @@ const Carousel = ({
   },
 
   play() {
-    let counter = this.active;
     let interval = setInterval(() => {
       if (this.direction === "right") {
         this.next();
-        counter++;
       }
       if (this.direction === "left") {
         this.prev();
-        counter--;
       }
       // check if counter is equal to total and change direction to left
-      if (counter == this.total) {
+      if (this.active == (this.total - this.slidePer - this.skip)) {
         this.direction = "left";
       }
       // check if counter is equal to 1 and change direction to right
-      if (counter == this.active) {
+      if (this.active == 0) {
         this.direction = "right";
       }
     }, this.interval);
