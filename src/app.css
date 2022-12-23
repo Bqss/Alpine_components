@@ -2,12 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base{
-  .center{
-    @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
-  }
+
 }
 [x-cloak]{
   display: none !important;
 }
+.embla {
+  --slide-spacing: 1rem;
+  --slide-size: 40%;
+  --slide-height: 19rem;
+
+}
+.embla__viewport {
+  overflow: hidden;
+}
+.embla__container {
+  display: flex;
+  flex-direction: row;
+  height: auto;
+  gap: 1rem;
+  /* margin-left: calc(var(--slide-spacing) * -1); */
+}
+.embla__slide {
+  flex: 0 0 var(--slide-size);
+  min-width: 0;
+  height: var(--slide-height);
+  padding-left: var(--slide-spacing);
+  position: relative;
+}
+
+
 

@@ -10,7 +10,7 @@
   </head>
   <body>
     <!-- dropdown menu -->
-    <div class="pt-10 pl-48">
+    <div class="pt-10 pl-3">
       <div
         class="relative inline-block text-left"
         x-data="dropdown({
@@ -131,7 +131,6 @@
           ></div>
         </template>
       </div>
-
       <!-- tabs -->
       <div class="mt-10">
         <div
@@ -173,16 +172,75 @@
               <div
                 x-text="d"
                 x-bind:="tab"
-                class="p-6 shadow-xl rounded-md h-[60vh] mt-4 "
-                x-transition:enter="duration-200 transition"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="duration-200"
-                x-transition:leave-end="opacity-0"
+                class="p-6 shadow-xl rounded-md h-[60vh] mt-4"
               ></div>
             </template>
           </div>
         </div>
+      </div>
+      <!-- carousel -->
+
+      <div
+        class="mt-10 md:col-span-2 rounded hover:cursor-pointer active:cursor-grabbing overflow-hidden max-w-2xl shadow-2xl relative mb-20"
+        x-data="carousel({slidePer:3})"
+        x-bind:="slider_wrapper"
+      >
+        <div
+          class="flex"
+          x-ref="slider"
+          @keydown.right="next"
+          @keydown.left="prev"
+        >
+          <template x-for="i in 10">
+            <div
+              x-bind:="slide"
+              class="w-full flex items-center justify-center border border-black select-none bg-white h-[15rem] flex-shrink-0"
+              x-text="i"
+            ></div>
+          </template>
+        </div>
+
+        <button
+          @click="prev"
+          class=" absolute top-1/2 transform -translate-y-1/2 left-0 bg-indigo-500 rounded-[100vw] p-1"
+          hidden
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="white"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+        </button>
+
+        <button
+          hidden
+          @click="next"
+          class="absolute top-1/2 transform -translate-y-1/2 right-0 bg-indigo-500 rounded-[100vw] p-1 "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="white"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8.25 4.5l7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </button>
       </div>
     </div>
   </body>
