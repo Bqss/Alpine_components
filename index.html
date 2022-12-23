@@ -185,14 +185,15 @@
 
       <div
         class="mt-10 md:col-span-2 rounded  overflow-hidden max-w-2xl shadow-2xl relative mb-20"
-        x-data="carousel({slidePer:3 , gap:2 , dragable:true})"
+        x-data="carousel({slidePer:2 , gap:2 , dragable:true , autoplay: true , skip : 1})"
         x-bind:="slider_wrapper"
+        tabindex="-1"
       >
         <div
           class="flex "
           x-ref="slider"
         >
-          <template x-for="i in 8">
+          <template x-for="i in 9">
             <div
               class="w-full flex items-center justify-center border border-black select-none bg-white h-[15rem] flex-shrink-0"
               x-text="i"

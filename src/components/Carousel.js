@@ -6,7 +6,7 @@ const Carousel = ({
   dragable = false,
   gap = 0,
 }) => ({
-  skip: skip,
+  skip: skip > slidePer ? slidePer : skip,
   active: 0,
   slidePer: slidePer,
   total: null,
@@ -29,7 +29,6 @@ const Carousel = ({
       this.total = slides.length;
       this.parentX = parent.getBoundingClientRect().x;
       this.width = (parent.getBoundingClientRect().width / this.slidePer) + (this.gap/4*16);
-
       slides.forEach((v) => {
         v.style.width = `${(((this.width / this.slidePer ))/this.width * 100)}%`;
       });
@@ -41,17 +40,19 @@ const Carousel = ({
       this.slider.style.transform = `translateX(${v}px)`;
     });
 
-    this.$watch("active", (v) => {
-      console.log(v);
-    });
-
     if (this.autoplay) {
       this.play();
     }
   },
+
+  get lastIndex(){
+    const last = Math.floor(this.total / this.slidePer); ;
+    const remain = this.total % this.slidePer;
+    return remain === 0 ? (last * this.slidePer - this.slidePer  ) : (last * this.slidePer ) 
+  },
   next(){
-    if (!this.infinite && this.active === this.total - 2 - this.skip) return;
-    if (this.infinite && this.active === this.total - 2 - this.skip) {
+    if (!this.infinite && this.active === this.lastIndex) return;
+    if (this.infinite && this.active === this.lastIndex) {
       this.xOffset = 0 * -this.width;
       this.active = 0;
       return;
@@ -66,12 +67,12 @@ const Carousel = ({
   prev(){
     if (!this.infinite && this.active === 0) return;
     if (this.infinite && this.active === 0) {
-      this.xOffset = (this.total - 1 - this.skip) * -this.width;
-      this.active = this.total - 1 - this.skip;
+      this.xOffset = this.lastIndex * -this.width;
+      this.active = this.lastIndex;
       return;
     }
-    this.xOffset = (this.active - 1 - this.skip) * -this.width;
-    this.active = this.active - 1 - this.skip;
+    this.xOffset = (-this.width*(this.active - 1 - skip));
+    this.active = (this.active - 1 - skip);
     this.slider.style.transition = `all ${300}ms`;
     setTimeout(() => {
       this.slider.style.transition = "";
@@ -91,8 +92,8 @@ const Carousel = ({
     ["@click.stop.throttle.100"]() {
       this.next();
     },
-    ["x-show"]: "! ( !infinite && active === (total -2 -skip))",
-    [":aria-hidden"]: "! ( !infinite && active === (total -2 -skip))",
+    ["x-show"]: "! ( !infinite && active === lastIndex)",
+    [":aria-hidden"]: "! ( !infinite && active === lastIndex)",
   },
   ["prev_btn"]: {
     ["@click.stop.throttle.100"]() {
@@ -102,8 +103,12 @@ const Carousel = ({
     [":aria-hidden"]: "! (!infinite && active === 0)",
   },
   ["slider_wrapper"]: {
+    ["@mouseover"](){
+        this.$el.style.cursor="pointer"
+    },
     ["@mousedown.stop"](e) {
       if (!this.dragable) return;
+      this.$el.style.cursor = "grabbing";
       this.drag = true;
       this.initialX = e.clientX - this.parentX - this.xOffset;
     },
@@ -123,7 +128,7 @@ const Carousel = ({
       const offset = Math.abs(xRange % this.width);
       let activeFloor = Math.floor(-xRange / this.width);
 
-      if (!this.activeFloor >= this.total - 1 || this.activeFloor < 0) {
+      if (!this.activeFloor >= this.lastIndex || this.activeFloor < 0) {
         if (xRange < 0) {
           offset > this.width / 2 && activeFloor++;
         } else if (xRange > 0) {
@@ -131,7 +136,7 @@ const Carousel = ({
         }
       } else {
         if (activeFloor >= this.total) {
-          activeFloor = this.total - 1;
+          activeFloor = this.lastIndex;
         } else if (activeFloor < 0) {
           activeFloor = 0;
         }
@@ -140,6 +145,12 @@ const Carousel = ({
       this.xOffset = -this.width * this.active;
       this.drag = false;
     },
+    ["@keydown.arrow-left"](){
+        this.prev()
+    },
+    ["@keydown.arrow-right"](){
+        this.next()
+    }
   },
 
   play() {
@@ -151,11 +162,11 @@ const Carousel = ({
         this.prev();
       }
       // check if counter is equal to total and change direction to left
-      if (this.active == (this.total - this.slidePer - this.skip)) {
+      if (this.active >= this.lastIndex) {
         this.direction = "left";
       }
       // check if counter is equal to 1 and change direction to right
-      if (this.active == 0) {
+      if (this.active <= 0) {
         this.direction = "right";
       }
     }, this.interval);
