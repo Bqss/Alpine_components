@@ -1,14 +1,24 @@
-const Carousel = ({ autoplay = false, slidePer = 1 }) => ({
-  skip: -1,
+const Carousel = ({
+  autoplay = false,
+  infinite = false,
+  slidePer = 1,
+  skip = 0,
+  dragable = false,
+  gap = 0,
+}) => ({
+  skip: skip,
   active: 0,
   slidePer: slidePer,
   total: null,
+  infinite: infinite,
   parentX: 0,
   drag: null,
   width: 0,
+  gap,
   initialX: 0,
-  xOffset : 0,
-  xRange : null ,
+  dragable,
+  xOffset: 0,
+  xRange: null,
   interval: 3000,
   autoplay: autoplay,
   direction: "right",
@@ -18,73 +28,114 @@ const Carousel = ({ autoplay = false, slidePer = 1 }) => ({
       const parent = this.$el;
       this.total = slides.length;
       this.parentX = parent.getBoundingClientRect().x;
-      this.width = parent.getBoundingClientRect().width / this.slidePer;
+      this.width = (parent.getBoundingClientRect().width / this.slidePer) + (this.gap/4*16);
 
       slides.forEach((v) => {
-        v.style.width = `${100 / this.slidePer}%`;
+        v.style.width = `${(((this.width / this.slidePer ))/this.width * 100)}%`;
       });
       this.slider = this.$refs.slider;
+      this.slider.style.gap = `${this.gap/4}rem`;
     });
 
     this.$watch("xOffset", (v) => {
+      if (!dragable) {
+        this.slider.style.transform = `translateX(${v}px)`;
+        this.slider.style.transition = `all ${300}ms`;
+        setTimeout(() => {
+          this.slider.style.transition = "";
+        }, 300);
+        return;
+      }
       this.slider.style.transform = `translateX(${v}px)`;
     });
-  
+
+    this.$watch("active", (v) => {
+      console.log(v);
+    });
 
     if (this.autoplay) {
       this.play();
     }
   },
-  to( active , delay = 300) {
+  to(active, delay = 300) {
     const x = -this.width * active;
-    this.slider.style.transform = `translateX(${x}px)`
+    this.active = active;
+    this.slider.style.transform = `translateX(${x}px)`;
     this.slider.style.transition = `all ${delay}ms`;
     setTimeout(() => {
       this.slider.style.transition = "";
     }, delay);
   },
+  [":aria-selected"]: "active",
+  ["next_btn"]: {
+    ["@click.stop.throttle.100"]() {
+      if (!this.infinite && this.active === this.total - 2 - this.skip) return;
+      if (this.infinite && this.active === this.total - 2 - this.skip) {
+        this.xOffset = 0 * -this.width;
+        this.active = 0;
+        return;
+      }
+      this.xOffset = (this.active + 1 + this.skip) * -this.width;
+      this.active = this.active + 1 + this.skip;
+    },
+    ["x-show"]: "! ( !infinite && active === (total -2 -skip))",
+    [":aria-hidden"]: "! ( !infinite && active === (total -2 -skip))",
+  },
+  ["prev_btn"]: {
+    ["@click.stop.throttle.100"]() {
+      if (!this.infinite && this.active === 0) return;
+      if (this.infinite && this.active === 0) {
+        this.xOffset = (this.total - 1 - this.skip) * -this.width;
+        this.active = this.total - 1 - this.skip;
+        return;
+      }
+      this.xOffset = (this.active - 1 - this.skip) * -this.width;
+      this.active = this.active - 1 - this.skip;
+    },
+    ["x-show"]: "! (!infinite && active === 0)",
+    [":aria-hidden"]: "! (!infinite && active === 0)",
+  },
   ["slider_wrapper"]: {
-    ["@mousedown"](e) {
+    ["@mousedown.stop"](e) {
+      if (!this.dragable) return;
       this.drag = true;
       this.initialX = e.clientX - this.parentX - this.xOffset;
     },
     ["@resize.window"]({ target }) {
       this.width = this.$el.getBoundingClientRect().width;
+      this.init();
+      this.to(0);
     },
-    ["@mousemove.window.prevent"](e) {
+    ["@mousemove.window.stop"](e) {
       if (!this.drag) return;
-      const currentX = e.clientX - this.initialX - this.parentX;
-      this.xOffset = currentX;
+      this.xOffset = e.clientX - this.initialX - this.parentX;
     },
-    ["@mouseup.window.prevent"](e) {
+    ["@mouseup.window"](e) {
+      if (!this.dragable) return;
       if (!this.drag) return;
-      const xRange  =  (e.clientX - this.initialX - this.parentX);
-      const offset = Math.abs(xRange) % this.width;
-      let activeFloor = Math.floor(Math.abs(xRange) / this.width);
-      
-      if(this.active != 0 || this.active !== this.total -1 ){
+      const xRange = e.clientX - this.initialX - this.parentX;
+      const offset = Math.abs(xRange % this.width);
+      let activeFloor = Math.floor(-xRange / this.width);
+
+      if (!this.activeFloor >= this.total - 1 || this.activeFloor < 0) {
         if (xRange < 0) {
           offset > this.width / 2 && activeFloor++;
         } else if (xRange > 0) {
           offset > this.width / 2 && activeFloor--;
         }
+      } else {
+        if (activeFloor >= this.total) {
+          activeFloor = this.total - 1;
+        } else if (activeFloor < 0) {
+          activeFloor = 0;
+        }
       }
-      this.xOffset = -this.width * activeFloor;
-      this.active = activeFloor;
-      this.to(activeFloor );
+      this.to(activeFloor);
+      this.xOffset = -this.width * this.active;
       this.drag = false;
-    }
+    },
   },
-  ["slide"]: {
-    // ["x-intersect.threshold.30"]() {
-    //     if(!this.drag ) return ;
-    //     if(this.currentFLow === 'right' && (this.i - 1) % this.slidePer === 0){
-    //         this.active = this.i - 1;
-    //     }else if (this.currentFLow === "left") {
-    //         console.log(this.i-1)
-    //     }
-    // },
-  },
+
   play() {
     let counter = this.active;
     let interval = setInterval(() => {

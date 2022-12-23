@@ -10,9 +10,11 @@
   </head>
   <body>
     <!-- dropdown menu -->
-    <div class="pt-10 pl-3">
+    
+    <div class=" pt-10 pl-3">
+      <h1 class="text-2xl font-bold mb-5">Alpine dropdown</h1>
       <div
-        class="relative inline-block text-left"
+        class=" ml-36 relative h-40 inline-block text-left"
         x-data="dropdown({
         data : [
           {label : 'Edit', link : '/edit'},
@@ -81,6 +83,7 @@
         </div>
       </div>
       <!-- dialog modal -->
+      <h1 class="text-2xl mt-20 font-bold mb-5">Alpine dropdown</h1>
       <div class="mt-20 py-10" x-data="dialog">
         <a
           x-bind:="dialog_control"
@@ -181,19 +184,16 @@
       <!-- carousel -->
 
       <div
-        class="mt-10 md:col-span-2 rounded hover:cursor-pointer active:cursor-grabbing overflow-hidden max-w-2xl shadow-2xl relative mb-20"
-        x-data="carousel({slidePer:3})"
+        class="mt-10 md:col-span-2 rounded  overflow-hidden max-w-2xl shadow-2xl relative mb-20"
+        x-data="carousel({slidePer:3 , gap:2 , dragable:true})"
         x-bind:="slider_wrapper"
       >
         <div
-          class="flex"
+          class="flex "
           x-ref="slider"
-          @keydown.right="next"
-          @keydown.left="prev"
         >
-          <template x-for="i in 10">
+          <template x-for="i in 8">
             <div
-              x-bind:="slide"
               class="w-full flex items-center justify-center border border-black select-none bg-white h-[15rem] flex-shrink-0"
               x-text="i"
             ></div>
@@ -201,9 +201,8 @@
         </div>
 
         <button
-          @click="prev"
-          class=" absolute top-1/2 transform -translate-y-1/2 left-0 bg-indigo-500 rounded-[100vw] p-1"
-          hidden
+          x-bind:="prev_btn"
+          class=" absolute top-1/2 z-[99] transform -translate-y-1/2 left-0 bg-indigo-500 rounded-[100vw] p-1"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -222,9 +221,8 @@
         </button>
 
         <button
-          hidden
-          @click="next"
-          class="absolute top-1/2 transform -translate-y-1/2 right-0 bg-indigo-500 rounded-[100vw] p-1 "
+          x-bind:="next_btn"
+          class="absolute top-1/2 z-[99] transform -translate-y-1/2 right-0 bg-indigo-500 rounded-[100vw] p-1 "
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -243,5 +241,8 @@
         </button>
       </div>
     </div>
+    <!-- <div class="h-64 bg-sky-400 p-10" @click.window="console.log('1')" x-data>
+      <button @click="console.log('2')" class="bg-white py-2 px-3 rounded-md">click me</button>
+    </div> -->
   </body>
 </html>

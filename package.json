@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@alpinejs/intersect": "^3.10.5",
     "@splidejs/splide": "^4.1.4",
     "alpinejs": "^3.10.5",
     "embla-carousel": "^7.0.5",
