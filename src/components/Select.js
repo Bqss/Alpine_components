@@ -3,7 +3,6 @@ const Select = ({ hoverStyle = "", placeholder = "select", ...other }) => ({
   activeDescendant: -1,
   activeIndex: -1,
   selected: placeholder,
-  items: [],
   ...other,
   focusButton() {
     this.$refs.select_control.focus();
